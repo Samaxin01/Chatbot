@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Chatbot</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f0f0f;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    width: 420px;
+    background: #1c1c1c;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chat {
+    height: 350px;
+    overflow-y: auto;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    margin-bottom: 10px;
+  }
+
+  .msg { margin: 8px 0; }
+  .user { color: #4da6ff; }
+  .bot { color: #7CFF6B; }
+
+  .input-box {
+    display: flex;
+    gap: 5px;
+  }
+
+  input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+  }
+
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background: #4da6ff;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #2f8fe6;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h3 style="text-align:center;">AI Chatbot 🤖</h3>
+
+  <div id="chat"></div>
+
+  <div class="input-box">
+    <input id="input" placeholder="Type message..." />
+    <button onclick="send()">Send</button>
+  </div>
+</div>
+
+<script>
+const API_KEY = "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"; // 🔑 put your key here
+
+async function send() {
+  const input = document.getElementById("input");
+  const chat = document.getElementById("chat");
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  chat.innerHTML += `<div class="msg user"><b>You:</b> ${text}</div>`;
+  input.value = "";
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        input: text
+      })
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    let reply =
+      data.output?.[0]?.content?.[0]?.text ||
+      data.output_text ||
+      "No response received";
+
+    chat.innerHTML += `<div class="msg bot"><b>Bot:</b> ${reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+  } catch (err) {
+    console.log(err);
+    chat.innerHTML += `<div class="msg bot"><b>Bot:</b> Error connecting</div>`;
+  }
+}
+</script>
+
+</body>
+</html>
